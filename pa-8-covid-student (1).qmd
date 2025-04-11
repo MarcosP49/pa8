@@ -158,4 +158,38 @@ ggplot(data = cases2021_new, aes(x = months, y = sum)) +
 
 ### Create your own graph
 
+```{r}
+head(cases)
+```
+
+
+```{r}
+casesThree = filter(cases, year(date) == "2021") |>
+  filter(state == "California" | state == "Oregon" | state == "Washington") |>
+  mutate(month = month(date)) |>
+  group_by(state, month) |>
+  summarise(deathProp = sum(deaths_daily) / sum(cases_daily))
+
+casesThree$deathProp = casesThree$deathProp * 100
+
+casesCali = filter(casesThree, state == "California")
+casesOre = filter(casesThree, state == "Oregon") 
+casesWash = filter(casesThree, state == "Washington") 
+
+print(casesThree)
+
+ggplot(casesThree, aes(x = months, y = deathProp)) +
+  geom_line(data = casesCali, aes(x = month, y = deathProp, col = "California")) +
+  geom_line(data = casesOre, aes(x = month, y = deathProp, col = "Oregon")) +
+  geom_line(data = casesWash, aes(x = month, y = deathProp, col = "Washington")) +
+  labs(
+    x = "Month",
+    y = "Deaths",
+    title = "Deaths per 100 cases of COVID-19 in California, Oregon, and Washington",
+    subtitle = "Did different coastal states have different success rates of treating patients during the pandemic?"
+  ) +
+  scale_color_manual(name = "State", values = c("California" = "steelblue", "Oregon" = "firebrick", "Washington" = "darkorchid"))
+```
+
+
 Using the COVID-19 data, create your graph to answer you own research question. You will submit that graph as png file in your Canvas quiz. Include your research question as the subtitle of the graph.  
