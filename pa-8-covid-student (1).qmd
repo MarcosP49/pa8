@@ -88,6 +88,7 @@ cases <- read_csv("covid_cases_us.csv")
 
 
 
+
 ### California Monthly COVID-19 Cases from January 2020 - March 2023
 
 We want to create a graph that plots the number of cases per month in California.  We want the x-axis of the plot to have the month/year (e.g. March 2021), and the number of cases on the y-axis. The months/years should be in order chronologically.
@@ -97,11 +98,14 @@ Below is some code that can help you get started with the process of working wit
 ```{r}
 #| label: calculate-totals-month
 cases |> 
-  filter(____________) |> 
-  mutate(date = ___(date),
-         month = ___(date, label = , abbr = ),
-         year = ___(date)) |> 
-  unite()
+  filter(state == "California") |> 
+  mutate(date = date(date),
+         month = month(date, label = , abbr = ),
+         year = year(date)) |> 
+  unite(date, month, year, sep = "/") |>
+  group_by(date) %>% 
+  summarise(sum = sum(cases_daily)) 
+
 ```
 
 
@@ -109,7 +113,7 @@ cases |>
 
 **Which Month in California had the most COVID-19 cases between January 2020 and March 2023?**
 
->Insert Answer Here
+>January 2022
 
 
 <!-- Swap roles -- Developer becomes Coder, Coder becomes Developer! -->
@@ -122,7 +126,24 @@ Create a graph that maps the number of cases in California in 2021 only. Be sure
 
 ```{r}
 #| label: ca-2021-covid
+cases2021 = filter(cases, year(date) == "2021") |>
+  filter(state == "California") |>
+  mutate(month = month(date)) |>
+  group_by(month) |>
+  summarise(sum = sum(cases_daily))
 
+cases2021_new = cases2021 |>
+  mutate(cases2021, monthF = factor(month, levels = month)) |>
+  mutate(months = c("Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec")) |>
+  mutate(months = factor(months, levels = months))
+head(cases2021_new)
+ggplot(data = cases2021_new, aes(x = months, y = sum)) +
+  geom_bar(stat = 'identity', col = "black", fill = "steelblue") +
+  labs(
+    x = "Month",
+    y = "Number of Cases",
+    title = "COVID-19 cases by month in California for 2021"
+  )
 ```
 
 
@@ -130,7 +151,7 @@ Create a graph that maps the number of cases in California in 2021 only. Be sure
 
 **Which month in 2021 had the fewest number of cases in California?**
 
->Insert Answer Here
+>The fewest cases in 2021 were in June.
 
 <!-- Swap roles -- Developer becomes Coder, Coder becomes Developer! -->
 
